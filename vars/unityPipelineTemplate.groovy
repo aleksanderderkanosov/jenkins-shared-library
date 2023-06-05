@@ -21,7 +21,7 @@ def call(body) {
                     $class: 'GroovyScript', 
                     script: [
                         classpath: [], 
-                        sandbox: false, 
+                        sandbox: true, 
                         script: 
                             buildScript(pipelineParams.buildPlatforms)
                     ]
@@ -38,13 +38,13 @@ def call(body) {
                     $class: 'GroovyScript',
                     fallbackScript: [
                         classpath: [], 
-                        sandbox: false, 
+                        sandbox: true, 
                         script: 
                             'return "None"'
                     ],
                     script: [
                         classpath: [],
-                        sandbox: false,
+                        sandbox: true,
                         script:
                             'if (BuildPlatforms.contains("XR")) { return ["Oculus:selected", "Pico:selected"] }'
                     ]
