@@ -18,7 +18,7 @@ def call(body) {
                         classpath: [], 
                         sandbox: false, 
                         script: 
-                            'return pipelineParams.BuildPlatforms'
+                            'return pipelineParams.buildPlatforms'
                     ]
                 ]
             ],
