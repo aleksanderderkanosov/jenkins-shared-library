@@ -1,3 +1,8 @@
+String buildScript(List values){
+    String output = values.join(":selected\", \"")
+    return "return [\"$output:selected\"]"
+}
+
 def call(body) {
     def pipelineParams = [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
@@ -18,7 +23,7 @@ def call(body) {
                         classpath: [], 
                         sandbox: false, 
                         script: 
-                        "return $pipelineParams.buildPlatforms"
+                            buildScript(pipelineParams.buildPlatforms)
                     ]
                 ]
             ],
@@ -47,7 +52,7 @@ def call(body) {
             ]
         ])
     ])
-    
+
     pipeline {
         //Variable inputs that modify the behavior of the job
         parameters {
