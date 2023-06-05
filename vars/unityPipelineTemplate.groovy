@@ -118,7 +118,7 @@ def call(body) {
                                     echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
                                     bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
-                                    BAT_COMMAND = BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
+                                    BAT_COMMAND = env.BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
                                     echo "${BAT_COMMAND}"
                                     //bat "${BAT_COMMAND}"
                                 }
