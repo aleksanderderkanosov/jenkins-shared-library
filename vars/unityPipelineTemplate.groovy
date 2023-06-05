@@ -18,7 +18,7 @@ def call(body) {
                         classpath: [], 
                         sandbox: false, 
                         script: 
-                            return pipelineParams.BuildPlatforms
+                            'return ["StandaloneWindows:selected", "Android:selected", "XR:selected"]'
                     ]
                 ]
             ],
@@ -81,7 +81,6 @@ def call(body) {
                         echo "BuildPlatforms: ${pipelineParams.buildPlatforms}"
                         echo "XrPlugins from params: ${params.XrPlugins}"
                         echo "XrPlugins: ${pipelineParams.xrPlugins}"
-                        echo "appname: ${pipelineParams.appname}"
                         params.BuildPlatforms.split(',').each { platform ->
                             OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
                             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
