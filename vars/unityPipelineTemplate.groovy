@@ -1,8 +1,8 @@
-def call(Map pipelineParams) {
-    /*def pipelineParams = [:]
+def call(body) {
+    def pipelineParams = [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = pipelineParams
-    body()*/
+    body()
 
     properties([
         parameters([
@@ -15,10 +15,10 @@ def call(Map pipelineParams) {
                 script: [
                     $class: 'GroovyScript', 
                     script: [
-                    classpath: [], 
-                    sandbox: false, 
-                    script: 
-                        'return ["StandaloneWindows:selected", "Android:selected", "XR:selected"]'
+                        classpath: [], 
+                        sandbox: false, 
+                        script: 
+                            'return ["StandaloneWindows:selected", "Android:selected", "XR:selected"]'
                     ]
                 ]
             ],
@@ -38,10 +38,10 @@ def call(Map pipelineParams) {
                             'return "None"'
                     ],
                     script: [
-                    classpath: [],
-                    sandbox: false,
-                    script:
-                        'if (BuildPlatforms.contains("XR")) { return ["Oculus:selected", "Pico:selected"] }'
+                        classpath: [],
+                        sandbox: false,
+                        script:
+                            'if (BuildPlatforms.contains("XR")) { return ["Oculus:selected", "Pico:selected"] }'
                     ]
                 ]
             ]
@@ -81,7 +81,7 @@ def call(Map pipelineParams) {
                         echo "BuildPlatforms: ${pipelineParams.buildPlatforms}"
                         echo "XrPlugins from params: ${params.XrPlugins}"
                         echo "XrPlugins: ${pipelineParams.xrPlugins}"
-                        echo: "appname: ${pipelineParams.appname}"
+                        echo "appname: ${pipelineParams.appname}"
                         params.BuildPlatforms.split(',').each { platform ->
                             OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
                             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
