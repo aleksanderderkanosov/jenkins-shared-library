@@ -18,7 +18,7 @@ def call(body) {
                         classpath: [], 
                         sandbox: false, 
                         script: 
-                            'return ["StandaloneWindows:selected", "Android:selected", "XR:selected"]'
+                            return pipelineParams.BuildPlatforms
                     ]
                 ]
             ],
