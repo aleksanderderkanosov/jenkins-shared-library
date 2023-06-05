@@ -4,7 +4,7 @@ def call(body) {
     body.delegate = pipelineParams
     body()
 
-    /*properties([
+    properties([
         parameters([
             [$class: 'ChoiceParameter', 
                 choiceType: 'PT_CHECKBOX', 
@@ -46,7 +46,7 @@ def call(body) {
                 ]
             ]
         ])
-    ])*/
+    ])
 
     pipeline {
         //Variable inputs that modify the behavior of the job
@@ -84,7 +84,7 @@ def call(body) {
                             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
                             if (platform.contains("XR")) {
                                 if (params.XrPlugins.isEmpty()) {
-                                    plugins = ['Oculus']
+                                    plugins = xrPlugins
                                 }
                                 else {
                                     plugins = params.XrPlugins.split(',')
