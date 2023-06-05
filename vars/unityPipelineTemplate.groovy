@@ -18,7 +18,7 @@ def call(body) {
                         classpath: [], 
                         sandbox: false, 
                         script: 
-                        "return ${pipelineParams.buildPlatforms}"
+                        "return $pipelineParams.buildPlatforms.join(\",\")"
                     ]
                 ]
             ],
