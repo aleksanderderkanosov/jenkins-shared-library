@@ -69,6 +69,7 @@ def call(body) {
             BUILD_NAME = "${pipelineParams.appName}_${currentBuild.number}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
+            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
         }
 
         // Options: add timestamp to job logs and limiting the number of builds to be kept.
@@ -93,7 +94,7 @@ def call(body) {
                         params.BuildPlatforms.split(',').each { platform ->
                             stage("Building: ${platform}") {
                                 OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
-                                BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
+                                //BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
                                 if (platform.contains("XR")) {
                                     if (params.XrPlugins.isEmpty()) {
                                         plugins = pipelineParams.xrPlugins
@@ -108,7 +109,7 @@ def call(body) {
                                             echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
                                             bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
-                                            BAT_COMMAND = BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
+                                            BAT_COMMAND = env.BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
                                             echo "${BAT_COMMAND}"
                                             //bat "${BAT_COMMAND}"
                                         }
