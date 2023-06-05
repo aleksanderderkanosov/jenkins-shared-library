@@ -94,7 +94,6 @@ def call(body) {
                         params.BuildPlatforms.split(',').each { platform ->
                             stage("Building: ${platform}") {
                                 OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
-                                //BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
                                 if (platform.contains("XR")) {
                                     if (params.XrPlugins.isEmpty()) {
                                         plugins = pipelineParams.xrPlugins
@@ -110,8 +109,7 @@ def call(body) {
                                             bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
                                             BAT_COMMAND = env.BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-                                            echo "${BAT_COMMAND}"
-                                            //bat "${BAT_COMMAND}"
+                                            bat "${BAT_COMMAND}"
                                         }
                                     }
                                 } else {
@@ -119,8 +117,7 @@ def call(body) {
                                     bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
                                     BAT_COMMAND = env.BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
-                                    echo "${BAT_COMMAND}"
-                                    //bat "${BAT_COMMAND}"
+                                    bat "${BAT_COMMAND}"
                                 }
                             }
                         }
@@ -133,7 +130,7 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
+                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
