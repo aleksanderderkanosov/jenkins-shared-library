@@ -66,7 +66,7 @@ def call(body) {
         //Definition of env variables that can be used throughout the pipeline job
         environment {
             // Unity build params
-            BUILD_NAME = "${pipelineParams.appname}_${currentBuild.number}"
+            BUILD_NAME = "${pipelineParams.appName}_${currentBuild.number}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
         }
@@ -83,7 +83,7 @@ def call(body) {
         }
 
         stages {
-            stage('Build') {
+            stage('Unity build') {
                 steps {
                     script {
                         echo "BuildPlatforms from params: ${params.BuildPlatforms}"
@@ -91,30 +91,32 @@ def call(body) {
                         echo "XrPlugins from params: ${params.XrPlugins}"
                         echo "XrPlugins: ${pipelineParams.xrPlugins}"
                         params.BuildPlatforms.split(',').each { platform ->
-                            OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
-                            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
-                            if (platform.contains("XR")) {
-                                if (params.XrPlugins.isEmpty()) {
-                                    plugins = pipelineParams.xrPlugins
-                                }
-                                else {
-                                    plugins = params.XrPlugins.split(',')
-                                }
-                                plugins.each { plugin ->
-                                    echo "plugin: ${plugin}"
-                                    OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}" + "\\${plugin}"
+                            stage("Building on ${platform}") {
+                                OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
+                                BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
+                                if (platform.contains("XR")) {
+                                    if (params.XrPlugins.isEmpty()) {
+                                        plugins = pipelineParams.xrPlugins
+                                    }
+                                    else {
+                                        plugins = params.XrPlugins.split(',')
+                                    }
+                                    plugins.each { plugin ->
+                                        echo "plugin: ${plugin}"
+                                        OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}" + "\\${plugin}"
+                                        echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
+                                        bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
+
+                                        BAT_COMMAND = BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
+                                        //bat "${BAT_COMMAND}"
+                                    }
+                                } else {
                                     echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
                                     bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
-                                    BAT_COMMAND = BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
+                                    BAT_COMMAND = BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
                                     //bat "${BAT_COMMAND}"
                                 }
-                            } else {
-                                echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
-                                bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
-
-                                BAT_COMMAND = BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
-                                //bat "${BAT_COMMAND}"
                             }
                         }
                     }
