@@ -3,6 +3,9 @@ String buildScript(List values){
     return "return [\"$output:selected\"]"
 }
 
+String buildPlatforms = buildScript(pipelineParams.buildPlatforms)
+String xrPlugins = buildScript(pipelineParams.xrPlugins)
+
 def call(body) {
     def pipelineParams = [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
@@ -23,7 +26,7 @@ def call(body) {
                         classpath: [], 
                         sandbox: true, 
                         script: 
-                            buildScript(pipelineParams.buildPlatforms)
+                            buildPlatforms
                     ]
                 ]
             ],
@@ -46,7 +49,7 @@ def call(body) {
                         classpath: [],
                         sandbox: true,
                         script:
-                            'if (BuildPlatforms.contains("XR")) { return ["Oculus:selected", "Pico:selected"] }'
+                            "if ($buildPlatforms.contains(\"XR\")) { ${xrPlugins} }"
                     ]
                 ]
             ]
