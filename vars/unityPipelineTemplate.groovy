@@ -4,7 +4,7 @@ def call(body) {
     body.delegate = pipelineParams
     body()
 
-    properties([
+    /*properties([
         parameters([
             [$class: 'ChoiceParameter', 
                 choiceType: 'PT_CHECKBOX', 
@@ -46,7 +46,7 @@ def call(body) {
                 ]
             ]
         ])
-    ])
+    ])*/
 
     pipeline {
         //Variable inputs that modify the behavior of the job
@@ -56,10 +56,6 @@ def call(body) {
 
         //Definition of env variables that can be used throughout the pipeline job
         environment {
-            appname = "JenkinsCi"
-            // GitHub data
-            String gitUrl = "https://github.com/aleksanderderkanosov/jenkins-ci.git"
-
             // Unity build params
             BUILD_NAME = "${appname}_${currentBuild.number}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
@@ -100,14 +96,14 @@ def call(body) {
                                     bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
                                     BAT_COMMAND = BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-                                    bat "${BAT_COMMAND}"
+                                    //bat "${BAT_COMMAND}"
                                 }
                             } else {
                                 echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
                                 bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
                                 BAT_COMMAND = BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
-                                bat "${BAT_COMMAND}"
+                                //bat "${BAT_COMMAND}"
                             }
                         }
                     }
@@ -119,7 +115,7 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
+                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
