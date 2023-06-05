@@ -1,8 +1,8 @@
-def call(body) {
-    def pipelineParams = [:]
+def call(Map pipelineParams) {
+    /*def pipelineParams = [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = pipelineParams
-    body()
+    body()*/
 
     properties([
         parameters([
@@ -57,7 +57,7 @@ def call(body) {
         //Definition of env variables that can be used throughout the pipeline job
         environment {
             // Unity build params
-            BUILD_NAME = "${appname}_${currentBuild.number}"
+            BUILD_NAME = "${pipelineParams.appname}_${currentBuild.number}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
         }
@@ -78,16 +78,16 @@ def call(body) {
                 steps {
                     script {
                         echo "BuildPlatforms from params: ${params.BuildPlatforms}"
-                        echo "BuildPlatforms: ${buildPlatforms}"
+                        echo "BuildPlatforms: ${pipelineParams.buildPlatforms}"
                         echo "XrPlugins from params: ${params.XrPlugins}"
-                        echo "XrPlugins: ${xrPlugins}"
-                        echo: "appname: ${appname}"
+                        echo "XrPlugins: ${pipelineParams.xrPlugins}"
+                        echo: "appname: ${pipelineParams.appname}"
                         params.BuildPlatforms.split(',').each { platform ->
                             OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
                             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
                             if (platform.contains("XR")) {
                                 if (params.XrPlugins.isEmpty()) {
-                                    plugins = xrPlugins
+                                    plugins = pipelineParams.xrPlugins
                                 }
                                 else {
                                     plugins = params.XrPlugins.split(',')
