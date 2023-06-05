@@ -50,7 +50,7 @@ def call(body) {
                         classpath: [],
                         sandbox: true,
                         script:
-                            "if (buildPlatforms.contains(\"XR\")) { ${xrPlugins} }"
+                            "if (BuildPlatforms.contains(\"XR\")) { ${xrPlugins} }"
                     ]
                 ]
             ]
