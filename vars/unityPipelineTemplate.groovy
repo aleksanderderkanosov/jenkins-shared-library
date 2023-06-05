@@ -77,8 +77,10 @@ def call(body) {
             stage('Build') {
                 steps {
                     script {
-                        echo "BuildPlatforms: ${params.BuildPlatforms}"
-                        echo "XrPlugins: ${params.XrPlugins}"
+                        echo "BuildPlatforms from params: ${params.BuildPlatforms}"
+                        echo "BuildPlatforms: ${buildPlatforms}"
+                        echo "XrPlugins from params: ${params.XrPlugins}"
+                        echo "XrPlugins: ${xrPlugins}"
                         params.BuildPlatforms.split(',').each { platform ->
                             OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
                             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
