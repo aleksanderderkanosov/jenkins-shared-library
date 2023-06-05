@@ -102,13 +102,15 @@ def call(body) {
                                         plugins = params.XrPlugins.split(',')
                                     }
                                     plugins.each { plugin ->
-                                        echo "plugin: ${plugin}"
-                                        OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}" + "\\${plugin}"
-                                        echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
-                                        bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
+                                        stage("Building on ${platform} - ${plugin}") {
+                                            echo "plugin: ${plugin}"
+                                            OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}" + "\\${plugin}"
+                                            echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
+                                            bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
-                                        BAT_COMMAND = BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-                                        //bat "${BAT_COMMAND}"
+                                            BAT_COMMAND = BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
+                                            //bat "${BAT_COMMAND}"
+                                        }
                                     }
                                 } else {
                                     echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
