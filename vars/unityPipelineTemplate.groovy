@@ -109,7 +109,8 @@ def call(body) {
                                             bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
                                             BAT_COMMAND = BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-                                            bat "${BAT_COMMAND}"
+                                            echo "${BAT_COMMAND}"
+                                            //bat "${BAT_COMMAND}"
                                         }
                                     }
                                 } else {
@@ -117,7 +118,8 @@ def call(body) {
                                     bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
                                     BAT_COMMAND = BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
-                                    bat "${BAT_COMMAND}"
+                                    echo "${BAT_COMMAND}"
+                                    //bat "${BAT_COMMAND}"
                                 }
                             }
                         }
@@ -130,7 +132,7 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
+                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
