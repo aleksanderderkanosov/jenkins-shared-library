@@ -18,7 +18,7 @@ def call(body) {
                         classpath: [], 
                         sandbox: false, 
                         script: 
-                            pipelineParams.buildPlatforms
+                            buildGroovyScript(pipelineParams.buildPlatforms)
                     ]
                 ]
             ],
@@ -47,6 +47,10 @@ def call(body) {
             ]
         ])
     ])
+
+    String buildGroovyScript(List values){
+        return "return $values"
+    }
 
     pipeline {
         //Variable inputs that modify the behavior of the job
