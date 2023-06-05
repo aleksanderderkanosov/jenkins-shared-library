@@ -3,14 +3,15 @@ String buildScript(List values){
     return "return [\"$output:selected\"]"
 }
 
-String buildPlatforms = buildScript(pipelineParams.buildPlatforms)
-String xrPlugins = buildScript(pipelineParams.xrPlugins)
 
 def call(body) {
     def pipelineParams = [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = pipelineParams
     body()
+
+    String buildPlatforms = buildScript(pipelineParams.buildPlatforms)
+    String xrPlugins = buildScript(pipelineParams.xrPlugins)
 
     properties([
         parameters([
