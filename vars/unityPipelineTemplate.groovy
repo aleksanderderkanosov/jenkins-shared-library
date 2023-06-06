@@ -22,7 +22,7 @@ def buildOnPlatform(String platform, List xrPlugins) {
 
         buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
         BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
-        //bat "${BAT_COMMAND}"
+        bat "${BAT_COMMAND}"
     }
 }
 
@@ -33,10 +33,9 @@ def buildOnPlugin(String platform, String plugin) {
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
         BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-        //bat "${BAT_COMMAND}"
+        bat "${BAT_COMMAND}"
     }
 }
-
 
 def call(body) {
     def pipelineParams = [:]
@@ -133,7 +132,7 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
+                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
