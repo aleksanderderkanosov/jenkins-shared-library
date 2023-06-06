@@ -1,9 +1,11 @@
-String listToGroovyScript(List values){
+String listToGroovyScript(List values) {
     String output = values.join(":selected\", \"")
     return "[\"$output:selected\"]"
 }
 
 def buildOnPlatform(String platform, List xrPlugins) {
+    echo "params.XrPlugins: ${params.XrPlugins}"
+    echo "params.scriptingBackend: ${params.scriptingBackend}"
     stage("Building: ${platform}") {
         if (platform.contains("XR")) {
             if (params.XrPlugins.isEmpty()) {
@@ -13,7 +15,7 @@ def buildOnPlatform(String platform, List xrPlugins) {
                 plugins = params.XrPlugins.split(',')
             }
             plugins.each { plugin ->
-                buildOnPlugin(platform, plugin)
+                buildOnXrPlugin(platform, plugin)
             }
             return
         }
@@ -22,18 +24,18 @@ def buildOnPlatform(String platform, List xrPlugins) {
 
         buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
         BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
-        bat "${BAT_COMMAND}"
+        //bat "${BAT_COMMAND}"
     }
 }
 
-def buildOnPlugin(String platform, String plugin) {
+def buildOnXrPlugin(String platform, String plugin) {
     stage("Building: ${platform} - ${plugin}") {
         outputFolder = "${env.OUTPUT_FOLDER}\\${platform}\\${plugin}"
         bat "cd ${outputFolder} || mkdir ${outputFolder}"
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
         BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-        bat "${BAT_COMMAND}"
+        //bat "${BAT_COMMAND}"
     }
 }
 
@@ -91,12 +93,13 @@ def call(body) {
     ])
 
     pipeline {
-        //Variable inputs that modify the behavior of the job
+        // Variable inputs that modify the behavior of the job
         parameters {
-            booleanParam(name: 'developmentBuild', defaultValue: true, description: 'Choose the buildType.')
+            booleanParam(name: 'developmentBuild', defaultValue: true, description: 'Choose the build type.')
+            choice(name: 'scriptingBackend', choices: ['Mono2x', 'IL2CPP'], description: 'Pick scripting backend.')
         }
 
-        //Definition of env variables that can be used throughout the pipeline job
+        // Definition of env variables that can be used throughout the pipeline job
         environment {
             // Unity build params
             BUILD_NAME = "${pipelineParams.appName}"
@@ -105,7 +108,7 @@ def call(body) {
             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics "
         }
 
-        // Options: add timestamp to job logs and limiting the number of builds to be kept.
+        // Options: add timestamp to job logs
         options {
             timestamps()
         }
@@ -132,7 +135,7 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
+                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
