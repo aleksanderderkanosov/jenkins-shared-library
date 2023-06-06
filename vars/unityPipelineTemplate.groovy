@@ -5,7 +5,8 @@ String listToString(List values){
 
 def buildOnPlatform(String platform) {
     stage("Building: ${platform}") {
-        //BUILD_NAME = env.BUILD_NAME + "\\${platform}" + "_${currentBuild.number}"
+        //buildName = env.BUILD_NAME + "\\${platform}" + "_${currentBuild.number}"
+
         if (platform.contains("XR")) {
             if (params.XrPlugins.isEmpty()) {
                 plugins = pipelineParams.xrPlugins
@@ -18,20 +19,22 @@ def buildOnPlatform(String platform) {
             }
             return
         }
-        OUTPUT_FOLDER += "\\${platform}"
-        bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
+        outputFolder = "${env.OUTPUT_FOLDER}\\${platform}"
+        bat "cd ${outputFolder} || mkdir ${outputFolder}"
 
-        BAT_COMMAND = env.BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
+        buildName = "${pipelineParams.appName}_${platform}_${currentBuild.number}"
+        BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
         //bat "${BAT_COMMAND}"
     }
 }
 
 def buildOnPlugin(String platform, String plugin) {
     stage("Building: ${platform} - ${plugin}") {
-        OUTPUT_FOLDER += "\\${platform}" + "\\${plugin}"
-        bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
+        outputFolder = "${env.OUTPUT_FOLDER}\\${platform}\\${plugin}"
+        bat "cd ${outputFolder} || mkdir ${outputFolder}"
 
-        BAT_COMMAND = env.BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
+        buildName = "${pipelineParams.appName}_${plugin}_${currentBuild.number}"
+        BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
         //bat "${BAT_COMMAND}"
     }
 }
@@ -99,10 +102,9 @@ def call(body) {
         //Definition of env variables that can be used throughout the pipeline job
         environment {
             // Unity build params
-            BUILD_NAME = "${pipelineParams.appName}_${currentBuild.number}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
-            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -customBuildName ${BUILD_NAME}"
+            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics "
         }
 
         // Options: add timestamp to job logs and limiting the number of builds to be kept.
