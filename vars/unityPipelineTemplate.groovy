@@ -4,8 +4,6 @@ String listToGroovyScript(List values) {
 }
 
 def buildOnPlatform(String platform, List xrPlugins) {
-    echo "params.XrPlugins: ${params.XrPlugins}"
-    echo "params.scriptingBackend: ${params.scriptingBackend}"
     stage("Building: ${platform}") {
         if (platform.contains("XR")) {
             if (params.XrPlugins.isEmpty()) {
@@ -24,6 +22,7 @@ def buildOnPlatform(String platform, List xrPlugins) {
 
         buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
         BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
+        echo "${BAT_COMMAND}"
         //bat "${BAT_COMMAND}"
     }
 }
@@ -35,6 +34,7 @@ def buildOnXrPlugin(String platform, String plugin) {
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
         BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
+        echo "${BAT_COMMAND}"
         //bat "${BAT_COMMAND}"
     }
 }
@@ -105,7 +105,7 @@ def call(body) {
             BUILD_NAME = "${pipelineParams.appName}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
-            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics "
+            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend}"
         }
 
         // Options: add timestamp to job logs
