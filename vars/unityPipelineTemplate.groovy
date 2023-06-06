@@ -1,14 +1,13 @@
-String listToString(List values){
+String listToGroovyScript(List values){
     String output = values.join(":selected\", \"")
     return "[\"$output:selected\"]"
 }
 
-def buildOnPlatform(String platform) {
+def buildOnPlatform(String platform, List xrPlugins) {
     stage("Building: ${platform}") {
-        echo "${env.XR_PLUGINS}"
         if (platform.contains("XR")) {
             if (params.XrPlugins.isEmpty()) {
-                plugins = env.XR_PLUGINS
+                plugins = xrPlugins
             }
             else {
                 plugins = params.XrPlugins.split(',')
@@ -45,8 +44,8 @@ def call(body) {
     body.delegate = pipelineParams
     body()
 
-    String buildPlatforms = listToString(pipelineParams.buildPlatforms)
-    String xrPlugins = listToString(pipelineParams.xrPlugins)
+    String buildPlatforms = listToGroovyScript(pipelineParams.buildPlatforms)
+    String xrPlugins = listToGroovyScript(pipelineParams.xrPlugins)
 
     properties([
         parameters([
@@ -103,7 +102,6 @@ def call(body) {
             // Unity build params
             BUILD_NAME = "${pipelineParams.appName}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
-            XR_PLUGINS = "${pipelineParams.xrPlugins}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics "
         }
@@ -124,7 +122,7 @@ def call(body) {
                 steps {
                     script {
                         params.BuildPlatforms.split(',').each { platform ->
-                            buildOnPlatform(platform)
+                            buildOnPlatform(platform, xrPlugins)
                         }
                     }
                 }
