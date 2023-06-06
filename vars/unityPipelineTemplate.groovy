@@ -9,7 +9,7 @@ def buildOnPlatform(String platform) {
 
         if (platform.contains("XR")) {
             if (params.XrPlugins.isEmpty()) {
-                plugins = pipelineParams.xrPlugins
+                plugins = env.XR_PLUGINS
             }
             else {
                 plugins = params.XrPlugins.split(',')
@@ -22,7 +22,7 @@ def buildOnPlatform(String platform) {
         outputFolder = "${env.OUTPUT_FOLDER}\\${platform}"
         bat "cd ${outputFolder} || mkdir ${outputFolder}"
 
-        buildName = "${pipelineParams.appName}_${platform}_${currentBuild.number}"
+        buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
         BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
         //bat "${BAT_COMMAND}"
     }
@@ -33,7 +33,7 @@ def buildOnPlugin(String platform, String plugin) {
         outputFolder = "${env.OUTPUT_FOLDER}\\${platform}\\${plugin}"
         bat "cd ${outputFolder} || mkdir ${outputFolder}"
 
-        buildName = "${pipelineParams.appName}_${plugin}_${currentBuild.number}"
+        buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
         BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
         //bat "${BAT_COMMAND}"
     }
@@ -63,7 +63,7 @@ def call(body) {
                         classpath: [], 
                         sandbox: true, 
                         script: 
-                            buildPlatforms
+                            "return ${buildPlatforms}"
                     ]
                 ]
             ],
@@ -86,7 +86,7 @@ def call(body) {
                         classpath: [],
                         sandbox: true,
                         script:
-                            "if (BuildPlatforms.contains(\"XR\")) { ${xrPlugins} }"
+                            "if (BuildPlatforms.contains(\"XR\")) { return ${xrPlugins} }"
                     ]
                 ]
             ]
@@ -102,7 +102,9 @@ def call(body) {
         //Definition of env variables that can be used throughout the pipeline job
         environment {
             // Unity build params
+            BUILD_NAME = "${pipelineParams.appName}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
+            XR_PLUGINS = pipelineParams.xrPlugins
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics "
         }
