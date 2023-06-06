@@ -122,7 +122,7 @@ def call(body) {
                 steps {
                     script {
                         params.BuildPlatforms.split(',').each { platform ->
-                            buildOnPlatform(platform, xrPlugins)
+                            buildOnPlatform(platform, pipelineParams.xrPlugins)
                         }
                     }
                 }
