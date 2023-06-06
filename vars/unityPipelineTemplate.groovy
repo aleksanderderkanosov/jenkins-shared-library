@@ -5,8 +5,7 @@ String listToString(List values){
 
 def buildOnPlatform(String platform) {
     stage("Building: ${platform}") {
-        //buildName = env.BUILD_NAME + "\\${platform}" + "_${currentBuild.number}"
-
+        echo "${env.XR_PLUGINS}"
         if (platform.contains("XR")) {
             if (params.XrPlugins.isEmpty()) {
                 plugins = env.XR_PLUGINS
@@ -104,7 +103,7 @@ def call(body) {
             // Unity build params
             BUILD_NAME = "${pipelineParams.appName}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
-            XR_PLUGINS = pipelineParams.xrPlugins
+            XR_PLUGINS = "${pipelineParams.xrPlugins}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics "
         }
