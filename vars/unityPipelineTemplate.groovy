@@ -19,6 +19,7 @@ def buildOnPlatform(String platform, List xrPlugins) {
         }
         outputFolder = "${env.OUTPUT_FOLDER}\\${platform}"
         bat "cd ${outputFolder} || mkdir ${outputFolder}"
+        excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
 
         buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
         batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
@@ -30,6 +31,7 @@ def buildOnXrPlugin(String platform, String plugin) {
     stage("Building: ${platform} - ${plugin}") {
         outputFolder = "${env.OUTPUT_FOLDER}\\${platform}\\${plugin}"
         bat "cd ${outputFolder} || mkdir ${outputFolder}"
+        excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
         batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
@@ -124,6 +126,7 @@ def call(body) {
             stage('Unity build') {
                 steps {
                     script {
+                        excludeDirectories = ""
                         params.BuildPlatforms.split(',').each { platform ->
                             buildOnPlatform(platform, pipelineParams.xrPlugins)
                         }
@@ -136,8 +139,8 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                echo "${outputFolder}"
-                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: "${env.OUTPUT_FOLDER}/StandaloneWindows/*BackUpThisFolder_ButDontShipItWithYourGame/**/*", onlyIfSuccessful: true
+                echo "excludeDirectories: ${excludeDirectories}"
+                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
