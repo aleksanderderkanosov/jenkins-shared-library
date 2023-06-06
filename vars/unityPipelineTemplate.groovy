@@ -17,25 +17,25 @@ def buildOnPlatform(String platform, List xrPlugins) {
             }
             return
         }
-        outputFolder = "${env.OUTPUT_FOLDER}\\${platform}"
+        outputFolder = "${env.OUTPUT_FOLDER}/${platform}"
         bat "cd ${outputFolder} || mkdir ${outputFolder}"
         excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
 
         buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
-        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
-        //bat "${batCommand}"
+        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%/${outputFolder}/ -executeMethod BuildCommand.PerformBuild"
+        bat "${batCommand}"
     }
 }
 
 def buildOnXrPlugin(String platform, String plugin) {
     stage("Building: ${platform} - ${plugin}") {
-        outputFolder = "${env.OUTPUT_FOLDER}\\${platform}\\${plugin}"
+        outputFolder = "${env.OUTPUT_FOLDER}/${platform}/${plugin}"
         bat "cd ${outputFolder} || mkdir ${outputFolder}"
         excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
-        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-        //bat "${batCommand}"
+        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%/${outputFolder}/ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
+        bat "${batCommand}"
     }
 }
 
@@ -106,7 +106,7 @@ def call(body) {
         environment {
             // Unity build params
             BUILD_NAME = "${pipelineParams.appName}_${params.scriptingBackend}"
-            OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
+            OUTPUT_FOLDER = "Builds/CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend} "
         }
@@ -139,8 +139,7 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                echo "excludeDirectories: ${excludeDirectories}"
-                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
+                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
