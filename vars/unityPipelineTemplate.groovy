@@ -3,6 +3,10 @@ String buildScript(List values){
     return "return [\"$output:selected\"]"
 }
 
+def test(){
+    echo "${BAT_COMMAND}"
+}
+
 
 def call(body) {
     def pipelineParams = [:]
@@ -87,10 +91,11 @@ def call(body) {
             stage('Unity build') {
                 steps {
                     script {
-                        echo "BuildPlatforms from params: ${params.BuildPlatforms}"
-                        echo "BuildPlatforms: ${pipelineParams.buildPlatforms}"
-                        echo "XrPlugins from params: ${params.XrPlugins}"
-                        echo "XrPlugins: ${pipelineParams.xrPlugins}"
+                        // echo "BuildPlatforms from params: ${params.BuildPlatforms}"
+                        // echo "BuildPlatforms: ${pipelineParams.buildPlatforms}"
+                        // echo "XrPlugins from params: ${params.XrPlugins}"
+                        // echo "XrPlugins: ${pipelineParams.xrPlugins}"
+                        test()
                         params.BuildPlatforms.split(',').each { platform ->
                             stage("Building: ${platform}") {
                                 OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
@@ -109,7 +114,7 @@ def call(body) {
                                             bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
                                             BAT_COMMAND = env.BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-                                            bat "${BAT_COMMAND}"
+                                            //bat "${BAT_COMMAND}"
                                         }
                                     }
                                 } else {
@@ -117,7 +122,7 @@ def call(body) {
                                     bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
                                     BAT_COMMAND = env.BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
-                                    bat "${BAT_COMMAND}"
+                                    //bat "${BAT_COMMAND}"
                                 }
                             }
                         }
@@ -130,7 +135,7 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
+                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
