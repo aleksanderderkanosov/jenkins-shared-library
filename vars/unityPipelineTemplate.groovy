@@ -21,9 +21,8 @@ def buildOnPlatform(String platform, List xrPlugins) {
         bat "cd ${outputFolder} || mkdir ${outputFolder}"
 
         buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
-        BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
-        echo "${BAT_COMMAND}"
-        //bat "${BAT_COMMAND}"
+        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
+        bat "${batCommand}"
     }
 }
 
@@ -33,9 +32,8 @@ def buildOnXrPlugin(String platform, String plugin) {
         bat "cd ${outputFolder} || mkdir ${outputFolder}"
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
-        BAT_COMMAND = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-        echo "${BAT_COMMAND}"
-        //bat "${BAT_COMMAND}"
+        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
+        bat "${batCommand}"
     }
 }
 
@@ -102,10 +100,10 @@ def call(body) {
         // Definition of env variables that can be used throughout the pipeline job
         environment {
             // Unity build params
-            BUILD_NAME = "${pipelineParams.appName}"
+            BUILD_NAME = "${pipelineParams.appName}_${params.scriptingBackend}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
-            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend}"
+            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend} "
         }
 
         // Options: add timestamp to job logs
@@ -135,7 +133,7 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
+                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
