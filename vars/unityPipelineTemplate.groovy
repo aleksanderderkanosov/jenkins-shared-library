@@ -133,7 +133,7 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*.*", excludes: "${env.OUTPUT_FOLDER}/StandaloneWindows/*BackUpThisFolder_ButDontShipItWithYourGame/**/*.*", onlyIfSuccessful: true
+                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/*", excludes: "${env.OUTPUT_FOLDER}/StandaloneWindows/*BackUpThisFolder_ButDontShipItWithYourGame/*", onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
