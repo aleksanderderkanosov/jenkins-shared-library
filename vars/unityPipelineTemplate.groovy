@@ -22,7 +22,7 @@ def buildOnPlatform(String platform, List xrPlugins) {
 
         buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
         batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
-        bat "${batCommand}"
+        //bat "${batCommand}"
     }
 }
 
@@ -33,8 +33,11 @@ def buildOnXrPlugin(String platform, String plugin) {
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
         batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-        bat "${batCommand}"
+        //bat "${batCommand}"
     }
+}
+
+def excludeDirectoriesFromArtifacts(List platforms) {
 }
 
 def call(body) {
@@ -133,7 +136,8 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: "*BackUpThisFolder_ButDontShipItWithYourGame/**/*", onlyIfSuccessful: true
+                echo "${outputFolder}"
+                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: "${env.OUTPUT_FOLDER}/StandaloneWindows/*BackUpThisFolder_ButDontShipItWithYourGame/**/*", onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
