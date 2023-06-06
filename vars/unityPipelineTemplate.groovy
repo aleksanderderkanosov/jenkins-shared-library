@@ -5,7 +5,7 @@ String listToString(List values){
 
 def buildOnPlatform(String platform) {
     stage("Building: ${platform}") {
-        OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
+        //BUILD_NAME = env.BUILD_NAME + "\\${platform}" + "_${currentBuild.number}"
         if (platform.contains("XR")) {
             if (params.XrPlugins.isEmpty()) {
                 plugins = pipelineParams.xrPlugins
@@ -18,7 +18,7 @@ def buildOnPlatform(String platform) {
             }
             return
         }
-        echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
+        OUTPUT_FOLDER += "\\${platform}"
         bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
         BAT_COMMAND = env.BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
@@ -28,8 +28,7 @@ def buildOnPlatform(String platform) {
 
 def buildOnPlugin(String platform, String plugin) {
     stage("Building: ${platform} - ${plugin}") {
-        OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}" + "\\${plugin}"
-        echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
+        OUTPUT_FOLDER += "\\${platform}" + "\\${plugin}"
         bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
         BAT_COMMAND = env.BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
