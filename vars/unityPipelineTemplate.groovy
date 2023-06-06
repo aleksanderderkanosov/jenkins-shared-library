@@ -1,33 +1,38 @@
-String buildScript(List values){
+String listToString(List values){
     String output = values.join(":selected\", \"")
-    return "return [\"$output:selected\"]"
+    return "[\"$output:selected\"]"
 }
 
-def buildOnPlatform(String platform){
-    OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
-    if (platform.contains("XR")) {
-        if (params.XrPlugins.isEmpty()) {
-            plugins = pipelineParams.xrPlugins
-        }
-        else {
-            plugins = params.XrPlugins.split(',')
-        }
-        plugins.each { plugin ->
-            stage("Building: ${platform} - ${plugin}") {
-                echo "plugin: ${plugin}"
-                OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}" + "\\${plugin}"
-                echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
-                bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
-
-                BAT_COMMAND = env.BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-                //bat "${BAT_COMMAND}"
+def buildOnPlatform(String platform) {
+    stage("Building: ${platform}") {
+        OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
+        if (platform.contains("XR")) {
+            if (params.XrPlugins.isEmpty()) {
+                plugins = pipelineParams.xrPlugins
             }
+            else {
+                plugins = params.XrPlugins.split(',')
+            }
+            plugins.each { plugin ->
+                buildOnPlugin(platform, plugin)
+            }
+            return
         }
-    } else {
         echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
         bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
 
         BAT_COMMAND = env.BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
+        //bat "${BAT_COMMAND}"
+    }
+}
+
+def buildOnPlugin(String platform, String plugin) {
+    stage("Building: ${platform} - ${plugin}") {
+        OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}" + "\\${plugin}"
+        echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
+        bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
+
+        BAT_COMMAND = env.BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
         //bat "${BAT_COMMAND}"
     }
 }
@@ -39,8 +44,8 @@ def call(body) {
     body.delegate = pipelineParams
     body()
 
-    String buildPlatforms = buildScript(pipelineParams.buildPlatforms)
-    String xrPlugins = buildScript(pipelineParams.xrPlugins)
+    String buildPlatforms = listToString(pipelineParams.buildPlatforms)
+    String xrPlugins = listToString(pipelineParams.xrPlugins)
 
     properties([
         parameters([
@@ -116,40 +121,8 @@ def call(body) {
             stage('Unity build') {
                 steps {
                     script {
-                        // echo "BuildPlatforms from params: ${params.BuildPlatforms}"
-                        // echo "BuildPlatforms: ${pipelineParams.buildPlatforms}"
-                        // echo "XrPlugins from params: ${params.XrPlugins}"
-                        // echo "XrPlugins: ${pipelineParams.xrPlugins}"
                         params.BuildPlatforms.split(',').each { platform ->
-                            stage("Building: ${platform}") {
-                                buildOnPlatform(platform)
-                                // OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}"
-                                // if (platform.contains("XR")) {
-                                //     if (params.XrPlugins.isEmpty()) {
-                                //         plugins = pipelineParams.xrPlugins
-                                //     }
-                                //     else {
-                                //         plugins = params.XrPlugins.split(',')
-                                //     }
-                                //     plugins.each { plugin ->
-                                //         stage("Building: ${platform} - ${plugin}") {
-                                //             echo "plugin: ${plugin}"
-                                //             OUTPUT_FOLDER = env.OUTPUT_FOLDER + "\\${platform}" + "\\${plugin}"
-                                //             echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
-                                //             bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
-
-                                //             BAT_COMMAND = env.BAT_COMMAND + " -buildTarget Android -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-                                //             //bat "${BAT_COMMAND}"
-                                //         }
-                                //     }
-                                // } else {
-                                //     echo "OUTPUT_FOLDER: ${OUTPUT_FOLDER}"
-                                //     bat "cd ${OUTPUT_FOLDER} || mkdir ${OUTPUT_FOLDER}"
-
-                                //     BAT_COMMAND = env.BAT_COMMAND + " -buildTarget ${platform} -customBuildPath %CD%\\${OUTPUT_FOLDER}\\ -executeMethod BuildCommand.PerformBuild"
-                                //     //bat "${BAT_COMMAND}"
-                                // }
-                            }
+                            buildOnPlatform(platform)
                         }
                     }
                 }
