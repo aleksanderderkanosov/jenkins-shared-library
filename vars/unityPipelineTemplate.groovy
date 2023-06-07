@@ -120,20 +120,22 @@ def call(body) {
                 steps {
                     script {
                         if (!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()) {
-                            buildPlatforms = pipelineParams.buildPlatforms
-                            xrPlugins = pipelineParams.xrPlugins
+                            platforms = pipelineParams.buildPlatforms
+                            plugins = pipelineParams.xrPlugins
                         }
                         else {
-                            buildPlatforms = params.BuildPlatforms.split(',')
-                            xrPlugins = params.XrPlugins.split(',')
+                            platforms = params.BuildPlatforms.split(',')
+                            plugins = params.XrPlugins.split(',')
                         }
                         excludeDirectories = ""
                         echo "pipelineParams.buildPlatforms: ${pipelineParams.buildPlatforms}"
                         echo "params.BuildPlatforms: ${params.BuildPlatforms}"
                         echo "pipelineParams.xrPlugins: ${pipelineParams.xrPlugins}"
                         echo "params.XrPlugins: ${params.XrPlugins}"
-                        buildPlatforms.each { platform ->
-                            buildOnPlatform(platform, pipelineParams.buildPlatforms)
+                        echo "platforms: ${platforms}"
+                        echo "plugins: ${plugins}"
+                        platforms.each { platform ->
+                            buildOnPlatform(platform, plugins)
                         }
                     }
                 }
