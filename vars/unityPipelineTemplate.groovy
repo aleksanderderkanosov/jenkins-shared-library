@@ -133,7 +133,7 @@ def call(body) {
                         echo "pipelineParams.xrPlugins: ${pipelineParams.xrPlugins}"
                         echo "params.XrPlugins: ${params.XrPlugins}"
                         buildPlatforms.each { platform ->
-                            buildOnPlatform(platform, xrPlugins)
+                            buildOnPlatform(platform, pipelineParams.buildPlatforms)
                         }
                     }
                 }
