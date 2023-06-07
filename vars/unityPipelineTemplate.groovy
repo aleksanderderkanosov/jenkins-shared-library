@@ -110,7 +110,7 @@ def call(body) {
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend} "
-            BUILD_OPTIONS_ENV_VAR = "CompressWith${params.compressionMethod},Development,ConnectToHost"
+            BUILD_OPTIONS_ENV_VAR = "CompressWith${params.compressionMethod}"
         }
 
         // Options: add timestamp to job logs
