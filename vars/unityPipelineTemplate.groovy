@@ -122,8 +122,8 @@ def call(body) {
                 steps {
                     script {
                         if (!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()) {
-                            platforms = pipelineParams.buildPlatforms
-                            plugins = pipelineParams.xrPlugins
+                            newPlatforms = pipelineParams.buildPlatforms
+                            newPlugins = pipelineParams.xrPlugins
                         }
                         else {
                             platforms = params.BuildPlatforms.split(',')
@@ -134,9 +134,9 @@ def call(body) {
                         echo "params.BuildPlatforms: ${params.BuildPlatforms}"
                         echo "pipelineParams.xrPlugins: ${pipelineParams.xrPlugins}"
                         echo "params.XrPlugins: ${params.XrPlugins}"
-                        echo "platforms: ${platforms}"
-                        echo "plugins: ${plugins}"
-                        buildOnPlatforms(platforms, plugins)
+                        echo "platforms: ${newPlatforms}"
+                        echo "plugins: ${newPlugins}"
+                        buildOnPlatforms(newPlatforms, newPlugins)
                     }
                 }
             }
