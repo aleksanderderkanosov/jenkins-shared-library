@@ -100,6 +100,7 @@ def call(body) {
         parameters {
             booleanParam(name: 'developmentBuild', defaultValue: true, description: 'Choose the build type.')
             choice(name: 'scriptingBackend', choices: ['Mono2x', 'IL2CPP'], description: 'Pick scripting backend.')
+            choice(name: 'compressionMethod', choices: ['Default', 'Lz4', 'Lz4HC'], description: 'Pick compression method.')
         }
 
         // Definition of env variables that can be used throughout the pipeline job
@@ -109,6 +110,7 @@ def call(body) {
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend} "
+            BUILD_OPTIONS_ENV_VAR = "CompressWith${params.compressionMethod}"
         }
 
         // Options: add timestamp to job logs
