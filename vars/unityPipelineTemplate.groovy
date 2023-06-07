@@ -128,8 +128,10 @@ def call(body) {
                             xrPlugins = params.XrPlugins.split(',')
                         }
                         excludeDirectories = ""
-                        echo "buildPlatforms: ${buildPlatforms}"
-                        echo "xrPlugins: ${xrPlugins}"
+                        echo "pipelineParams.buildPlatforms: ${pipelineParams.buildPlatforms}"
+                        echo "params.BuildPlatforms: ${params.BuildPlatforms}"
+                        echo "pipelineParams.xrPlugins: ${pipelineParams.xrPlugins}"
+                        echo "params.XrPlugins: ${params.XrPlugins}"
                         buildPlatforms.each { platform ->
                             buildOnPlatform(platform, xrPlugins)
                         }
