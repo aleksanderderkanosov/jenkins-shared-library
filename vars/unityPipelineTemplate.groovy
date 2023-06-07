@@ -6,13 +6,7 @@ String listToGroovyScript(List values) {
 def buildOnPlatform(String platform, List xrPlugins) {
     stage("Building: ${platform}") {
         if (platform.contains("XR")) {
-            if (params.XrPlugins.isEmpty()) {
-                plugins = xrPlugins
-            }
-            else {
-                plugins = params.XrPlugins.split(',')
-            }
-            plugins.each { plugin ->
+            xrPlugins.each { plugin ->
                 buildOnXrPlugin(platform, plugin)
             }
             return
@@ -23,7 +17,7 @@ def buildOnPlatform(String platform, List xrPlugins) {
 
         buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
         batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
-        bat "${batCommand}"
+        //bat "${batCommand}"
     }
 }
 
@@ -35,11 +29,8 @@ def buildOnXrPlugin(String platform, String plugin) {
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
         batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-        bat "${batCommand}"
+        //bat "${batCommand}"
     }
-}
-
-def excludeDirectoriesFromArtifacts(List platforms) {
 }
 
 def call(body) {
@@ -125,12 +116,22 @@ def call(body) {
         }
 
         stages {
-            stage('Unity build') {
+            stage('Init build') {
                 steps {
                     script {
+                        if (!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()) {
+                            buildPlatforms = pipelineParams.buildPlatforms
+                            xrPlugins = pipelineParams.xrPlugins
+                        }
+                        else {
+                            buildPlatforms = params.BuildPlatforms.split(',')
+                            xrPlugins = params.XrPlugins.split(',')
+                        }
                         excludeDirectories = ""
-                        params.BuildPlatforms.split(',').each { platform ->
-                            buildOnPlatform(platform, pipelineParams.xrPlugins)
+                        echo "buildPlatforms: ${buildPlatforms}"
+                        echo "xrPlugins: ${xrPlugins}"
+                        buildPlatforms.each { platform ->
+                            buildOnPlatform(platform, xrPlugins)
                         }
                     }
                 }
@@ -141,7 +142,7 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
+                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
