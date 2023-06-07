@@ -126,8 +126,8 @@ def call(body) {
                             newPlugins = pipelineParams.xrPlugins
                         }
                         else {
-                            platforms = params.BuildPlatforms.split(',')
-                            plugins = params.XrPlugins.split(',')
+                            newPlatforms = params.BuildPlatforms.split(',')
+                            newPlugins = params.XrPlugins.split(',')
                         }
                         excludeDirectories = ""
                         echo "pipelineParams.buildPlatforms: ${pipelineParams.buildPlatforms}"
