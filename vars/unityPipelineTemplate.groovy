@@ -4,21 +4,23 @@ String listToGroovyScript(List values) {
 }
 
 def buildOnPlatforms(List platforms, List xrPlugins) {
-    platforms.each { platform ->
-        stage("Building: ${platform}") {
-            if (platform.contains("XR")) {
-                xrPlugins.each { plugin ->
-                    buildOnXrPlugin(platform, plugin)
+    stage('Build on platforms') {
+        platforms.each { platform ->
+            stage("Building: ${platform}") {
+                if (platform.contains("XR")) {
+                    xrPlugins.each { plugin ->
+                        buildOnXrPlugin(platform, plugin)
+                    }
+                    return
                 }
-                return
-            }
-            outputFolder = "${env.OUTPUT_FOLDER}\\${platform}"
-            bat "cd ${outputFolder} || mkdir ${outputFolder}"
-            excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
+                outputFolder = "${env.OUTPUT_FOLDER}\\${platform}"
+                bat "cd ${outputFolder} || mkdir ${outputFolder}"
+                excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
 
-            buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
-            batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
-            //bat "${batCommand}"
+                buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
+                batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
+                //bat "${batCommand}"
+            }
         }
     }
 }
