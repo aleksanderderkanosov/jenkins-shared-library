@@ -22,7 +22,7 @@ def buildOnPlatform(String platform, List xrPlugins) {
         excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
 
         buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
-        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
+        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod Antilatency.BuildingCi.Editor.BuildCommand.PerformBuild"
         bat "${batCommand}"
     }
 }
@@ -34,7 +34,7 @@ def buildOnXrPlugin(String platform, String plugin) {
         excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
-        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
+        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod Antilatency.BuildingCi.Editor.BuildCommand.PerformBuild"
         bat "${batCommand}"
     }
 }
