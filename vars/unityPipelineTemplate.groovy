@@ -3,7 +3,7 @@ String listToGroovyScript(List values) {
     return "[\"$output:selected\"]"
 }
 
-def buildOnPlatform(List platforms, List xrPlugins) {
+def buildOnPlatforms(List platforms, List xrPlugins) {
     platforms.each { platform ->
         stage("Building: ${platform}") {
             if (platform.contains("XR")) {
