@@ -118,6 +118,32 @@ def call(body) {
         }
 
         stages {
+            stage('Test Tag 1') {
+                when {
+                    buildingTag()
+                }
+                steps {
+                    echo 'Into stage with buildingTag()'
+                }
+            }
+
+            stage('Test Tag 2') {
+                when {
+                    tag "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?\$"
+                }
+                steps {
+                    echo 'Into stage with tag regex'
+                }
+            }
+
+            stage('Test Tag 3') {
+                when {
+                    expression { return !currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty() }
+                }
+                steps {
+                    echo 'Into stage with getBuildCauses'
+                }
+            }
             stage('Init build') {
                 steps {
                     script {
@@ -125,20 +151,16 @@ def call(body) {
                         echo "GitHubPushCause: ${!currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty()}"
                         echo "BranchEventCause: ${!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()}"
                         echo "UserIdCause: ${!currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty()}"
-                        if (!currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty() || !currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()) {
+                        if (!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty() || !currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty()) {
                             platforms = pipelineParams.buildPlatforms
                             plugins = pipelineParams.xrPlugins
-                            echo "after Push"
                         }
                         else {
                             platforms = params.BuildPlatforms.tokenize(',')
                             plugins = params.XrPlugins.tokenize(',')
-                            echo "after Run"
                         }
-                        echo "platforms: ${platforms}"
-                        echo "plugins: ${plugins}"
                         excludeDirectories = ""
-                        buildOnPlatforms(platforms, plugins)
+                        //buildOnPlatforms(platforms, plugins)
                     }
                 }
             }
