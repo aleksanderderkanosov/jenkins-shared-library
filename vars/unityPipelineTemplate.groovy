@@ -4,23 +4,21 @@ String listToGroovyScript(List values) {
 }
 
 def buildOnPlatforms(List platforms, List xrPlugins) {
-    stage('Build on platforms') {
-        platforms.each { platform ->
-            stage("Building: ${platform}") {
-                if (platform.contains("XR")) {
-                    xrPlugins.each { plugin ->
-                        buildOnXrPlugin(platform, plugin)
-                    }
-                    return
+    platforms.each { platform ->
+        stage("Building: ${platform}") {
+            if (platform.contains("XR")) {
+                xrPlugins.each { plugin ->
+                    buildOnXrPlugin(platform, plugin)
                 }
-                outputFolder = "${env.OUTPUT_FOLDER}\\${platform}"
-                bat "cd ${outputFolder} || mkdir ${outputFolder}"
-                excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
-
-                buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
-                batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
-                //bat "${batCommand}"
+                return
             }
+            outputFolder = "${env.OUTPUT_FOLDER}\\${platform}"
+            bat "cd ${outputFolder} || mkdir ${outputFolder}"
+            excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
+
+            buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
+            batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
+            //bat "${batCommand}"
         }
     }
 }
@@ -43,8 +41,8 @@ def call(body) {
     body.delegate = pipelineParams
     body()
 
-    String buildPlatforms = listToGroovyScript(pipelineParams.buildPlatforms)
-    String xrPlugins = listToGroovyScript(pipelineParams.xrPlugins)
+    String buildPlatformsString = listToGroovyScript(pipelineParams.buildPlatforms)
+    String xrPluginsString = listToGroovyScript(pipelineParams.xrPlugins)
 
     properties([
         parameters([
@@ -60,7 +58,7 @@ def call(body) {
                         classpath: [], 
                         sandbox: true, 
                         script: 
-                            "return ${buildPlatforms}"
+                            "return ${buildPlatformsString}"
                     ]
                 ]
             ],
@@ -83,7 +81,7 @@ def call(body) {
                         classpath: [],
                         sandbox: true,
                         script:
-                            "if (BuildPlatforms.contains(\"XR\")) { return ${xrPlugins} }"
+                            "if (BuildPlatforms.contains(\"XR\")) { return ${xrPluginsString} }"
                     ]
                 ]
             ]
@@ -124,21 +122,15 @@ def call(body) {
                 steps {
                     script {
                         if (!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()) {
-                            newPlatforms = pipelineParams.buildPlatforms
-                            newPlugins = pipelineParams.xrPlugins
+                            platforms = pipelineParams.buildPlatforms
+                            plugins = pipelineParams.xrPlugins
                         }
                         else {
-                            newPlatforms = params.BuildPlatforms.split(',')
-                            newPlugins = params.XrPlugins.split(',')
+                            platforms = params.BuildPlatforms.tokenize(',')
+                            plugins = params.XrPlugins.tokenize(',')
                         }
                         excludeDirectories = ""
-                        echo "pipelineParams.buildPlatforms: ${pipelineParams.buildPlatforms}"
-                        echo "params.BuildPlatforms: ${params.BuildPlatforms}"
-                        echo "pipelineParams.xrPlugins: ${pipelineParams.xrPlugins}"
-                        echo "params.XrPlugins: ${params.XrPlugins}"
-                        echo "platforms: ${newPlatforms}"
-                        echo "plugins: ${newPlugins}"
-                        buildOnPlatforms(newPlatforms, newPlugins)
+                        buildOnPlatforms(platforms, plugins)
                     }
                 }
             }
