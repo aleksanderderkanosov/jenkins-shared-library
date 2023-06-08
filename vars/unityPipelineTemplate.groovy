@@ -124,11 +124,15 @@ def call(body) {
                         if (!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()) {
                             platforms = pipelineParams.buildPlatforms
                             plugins = pipelineParams.xrPlugins
+                            echo "after Push"
                         }
                         else {
                             platforms = params.BuildPlatforms.tokenize(',')
                             plugins = params.XrPlugins.tokenize(',')
+                            echo "after Run"
                         }
+                        echo "platforms: ${platforms}"
+                        echo "plugins: ${plugins}"
                         excludeDirectories = ""
                         buildOnPlatforms(platforms, plugins)
                     }
