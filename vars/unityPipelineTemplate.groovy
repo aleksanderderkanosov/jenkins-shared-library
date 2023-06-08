@@ -18,7 +18,7 @@ def buildOnPlatforms(List platforms, List xrPlugins) {
 
             buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
             batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
-            //bat "${batCommand}"
+            bat "${batCommand}"
         }
     }
 }
@@ -31,7 +31,7 @@ def buildOnXrPlugin(String platform, String plugin) {
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
         batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
-        //bat "${batCommand}"
+        bat "${batCommand}"
     }
 }
 
@@ -46,24 +46,24 @@ def call(body) {
 
     properties([
         parameters([
-            [$class: 'ChoiceParameter', 
-                choiceType: 'PT_CHECKBOX', 
+            [$class: 'ChoiceParameter',
+                choiceType: 'PT_CHECKBOX',
                 description: 'Choose the target build platform:',
                 filterLength: 1,
                 filterable: false,
-                name: 'BuildPlatforms', 
+                name: 'BuildPlatforms',
                 script: [
-                    $class: 'GroovyScript', 
+                    $class: 'GroovyScript',
                     script: [
-                        classpath: [], 
-                        sandbox: true, 
-                        script: 
+                        classpath: [],
+                        sandbox: true,
+                        script:
                             "return ${buildPlatformsString}"
                     ]
                 ]
             ],
-            [$class: 'CascadeChoiceParameter', 
-                choiceType: 'PT_CHECKBOX', 
+            [$class: 'CascadeChoiceParameter',
+                choiceType: 'PT_CHECKBOX',
                 description: 'Choose the XR Plug-in Provider:',
                 filterLength: 1,
                 filterable: false,
@@ -72,9 +72,9 @@ def call(body) {
                 script: [
                     $class: 'GroovyScript',
                     fallbackScript: [
-                        classpath: [], 
-                        sandbox: true, 
-                        script: 
+                        classpath: [],
+                        sandbox: true,
+                        script:
                             'return "None"'
                     ],
                     script: [
@@ -99,14 +99,13 @@ def call(body) {
         // Definition of env variables that can be used throughout the pipeline job
         environment {
             // Unity build params
-            BUILD_NAME = "${pipelineParams.appName}_${params.scriptingBackend}"
+            BUILD_NAME = "${pipelineParams.appName}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
             BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend} "
             BUILD_OPTIONS_ENV_VAR = "CompressWith${params.compressionMethod}"
         }
 
-        // Options: add timestamp to job logs
         options {
             timestamps()
         }
@@ -118,32 +117,9 @@ def call(body) {
         }
 
         stages {
-            stage('Test Tag 1') {
-                when {
-                    beforeAgent true
-                    buildingTag()
-                }
-                steps {
-                    echo 'Into stage with buildingTag()'
-                }
-            }
-
-            stage('Test Tag 3') {
-                when {
-                    beforeAgent true
-                    expression { return !currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty() }
-                }
-                steps {
-                    echo 'Into stage with getBuildCauses'
-                }
-            }
             stage('Init build') {
                 steps {
                     script {
-                        echo "getBuildCauses: ${currentBuild.getBuildCauses()}"
-                        echo "GitHubPushCause: ${!currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty()}"
-                        echo "BranchEventCause: ${!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()}"
-                        echo "UserIdCause: ${!currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty()}"
                         if (!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty() || !currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty()) {
                             platforms = pipelineParams.buildPlatforms
                             plugins = pipelineParams.xrPlugins
@@ -153,17 +129,17 @@ def call(body) {
                             plugins = params.XrPlugins.tokenize(',')
                         }
                         excludeDirectories = ""
-                        //buildOnPlatforms(platforms, plugins)
+                        buildOnPlatforms(platforms, plugins)
                     }
                 }
             }
         }
 
-        //Any action we want to perform after all the steps have succeeded or failed 
+        //Any action we want to perform after all the steps have succeeded or failed
         post {
             success {
                 echo "Success!"
-                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
+                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
             }
             failure {
                 echo "Failure!"
