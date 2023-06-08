@@ -116,6 +116,7 @@ def call(body) {
 
         options {
             timestamps()
+            buildDiscarder(logRotator(numToKeepStr: '1', daysToKeepStr: '7', artifactNumToKeepStr: '10', artifactDaysToKeepStr: '7'))
         }
 
         agent {
