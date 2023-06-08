@@ -4,9 +4,17 @@ String listToGroovyScript(List values) {
 }
 
 def buildOnPlatforms(List platforms, List xrPlugins) {
+    if (platforms.isEmpty()) {
+        echo "Platform list is empty!"
+        return
+    }
     platforms.each { platform ->
         stage("Building: ${platform}") {
             if (platform.contains("XR")) {
+                if (xrPlugins.isEmpty()) {
+                    echo "xrPlugins list is empty!"
+                    return
+                }
                 xrPlugins.each { plugin ->
                     buildOnXrPlugin(platform, plugin)
                 }
@@ -99,10 +107,10 @@ def call(body) {
         // Definition of env variables that can be used throughout the pipeline job
         environment {
             // Unity build params
-            BUILD_NAME = "${pipelineParams.appName}"
+            BUILD_NAME = "${pipelineParams.productName}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
-            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend} "
+            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend} -productName ${pipelineParams.productName} "
             BUILD_OPTIONS_ENV_VAR = "CompressWith${params.compressionMethod}"
         }
 
