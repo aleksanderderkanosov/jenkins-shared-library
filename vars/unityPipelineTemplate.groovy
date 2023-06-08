@@ -122,8 +122,8 @@ def call(body) {
                 steps {
                     script {
                         echo "getBuildCauses: ${currentBuild.getBuildCauses()}"
-                        echo "push: ${currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()}"
-                        echo "run: ${currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty()}"
+                        echo "push: ${!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()}"
+                        echo "run: ${!currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty()}"
                         if (!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()) {
                             platforms = pipelineParams.buildPlatforms
                             plugins = pipelineParams.xrPlugins
