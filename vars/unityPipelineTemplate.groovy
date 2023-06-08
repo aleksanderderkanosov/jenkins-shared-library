@@ -48,7 +48,7 @@ def call(body) {
         parameters([
             [$class: 'ChoiceParameter', 
                 choiceType: 'PT_CHECKBOX', 
-                description: 'Choose the target build platform.',
+                description: 'Choose the target build platform:',
                 filterLength: 1,
                 filterable: false,
                 name: 'BuildPlatforms', 
@@ -64,7 +64,7 @@ def call(body) {
             ],
             [$class: 'CascadeChoiceParameter', 
                 choiceType: 'PT_CHECKBOX', 
-                description: 'Choose the XR Plug-in Provider.',
+                description: 'Choose the XR Plug-in Provider:',
                 filterLength: 1,
                 filterable: false,
                 name: 'XrPlugins',
@@ -122,9 +122,10 @@ def call(body) {
                 steps {
                     script {
                         echo "getBuildCauses: ${currentBuild.getBuildCauses()}"
-                        echo "push: ${!currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty()}"
-                        echo "run: ${!currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty()}"
-                        if (!currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty()) {
+                        echo "GitHubPushCause: ${!currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty()}"
+                        echo "BranchEventCause: ${!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()}"
+                        echo "UserIdCause: ${!currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty()}"
+                        if (!currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty() || !currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty()) {
                             platforms = pipelineParams.buildPlatforms
                             plugins = pipelineParams.xrPlugins
                             echo "after Push"
