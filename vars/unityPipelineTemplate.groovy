@@ -120,6 +120,7 @@ def call(body) {
         stages {
             stage('Test Tag 1') {
                 when {
+                    beforeAgent true
                     buildingTag()
                 }
                 steps {
@@ -127,17 +128,9 @@ def call(body) {
                 }
             }
 
-            stage('Test Tag 2') {
-                when {
-                    tag "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?\$"
-                }
-                steps {
-                    echo 'Into stage with tag regex'
-                }
-            }
-
             stage('Test Tag 3') {
                 when {
+                    beforeAgent true
                     expression { return !currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty() }
                 }
                 steps {
