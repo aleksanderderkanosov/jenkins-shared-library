@@ -122,9 +122,9 @@ def call(body) {
                 steps {
                     script {
                         echo "getBuildCauses: ${currentBuild.getBuildCauses()}"
-                        echo "push: ${!currentBuild.getBuildCauses('jenkins.GitHubPushCause').isEmpty()}"
+                        echo "push: ${!currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty()}"
                         echo "run: ${!currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').isEmpty()}"
-                        if (!currentBuild.getBuildCauses('jenkins.GitHubPushCause').isEmpty()) {
+                        if (!currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty()) {
                             platforms = pipelineParams.buildPlatforms
                             plugins = pipelineParams.xrPlugins
                             echo "after Push"
