@@ -34,7 +34,7 @@ def buildOnPlatforms(List platforms, List xrPlugins) {
             outputFolder = "${env.OUTPUT_FOLDER}\\${platform}"
             buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
             batCommand = constructBuildCommand(platform, buildName, outputFolder, platform)
-            echo "${batCommand}"
+            bat "${batCommand}"
         }
     }
 }
@@ -44,7 +44,7 @@ def buildOnXrPlugin(String platform, String plugin) {
         outputFolder = "${env.OUTPUT_FOLDER}\\${platform}\\${plugin}"
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
         batCommand = constructBuildCommand(platform, buildName, outputFolder, "Android") + " -xrPlugin ${plugin}"
-        echo "${batCommand}"
+        bat "${batCommand}"
     }
 }
 
@@ -153,8 +153,8 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
-                //bat "@RD /S /Q ${env.OUTPUT_FOLDER}" // remove directory
+                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
+                bat "@RD /S /Q ${env.OUTPUT_FOLDER}" // remove directory
             }
             failure {
                 echo "Failure!"
