@@ -43,7 +43,7 @@ def buildOnXrPlugin(String platform, String plugin) {
     stage("Building: ${platform} - ${plugin}") {
         outputFolder = "${env.OUTPUT_FOLDER}\\${platform}\\${plugin}"
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
-        batCommand = constructBuildCommand(platform, buildName, outputFolder, platform)
+        batCommand = constructBuildCommand(platform, buildName, outputFolder, "Android") + " -xrPlugin ${plugin}"
         echo "${batCommand}"
     }
 }
