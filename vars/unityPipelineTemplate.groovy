@@ -3,6 +3,17 @@ String listToGroovyScript(List values) {
     return "[\"$output:selected\"]"
 }
 
+String constructBuildCommand(String platform, String buildName, String outputFolder, String buildTarget) {
+    bat "cd ${outputFolder} || mkdir ${outputFolder}"
+    excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
+
+    buildCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -customBuildPath %CD%\\${outputFolder}\\ -buildTarget ${buildTarget}"
+    if (!params.developmentBuild){
+        buildCommand += " -releaseCodeOptimization"
+    }
+    return buildCommand
+}
+
 def buildOnPlatforms(List platforms, List xrPlugins) {
     if (platforms.isEmpty()) {
         echo "Platform list is empty!"
@@ -21,15 +32,9 @@ def buildOnPlatforms(List platforms, List xrPlugins) {
                 return
             }
             outputFolder = "${env.OUTPUT_FOLDER}\\${platform}"
-            bat "cd ${outputFolder} || mkdir ${outputFolder}"
-            excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
-
             buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
-            batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\"
-            if (!params.developmentBuild){
-                batCommand += " -releaseCodeOptimization"
-            }
-            bat "${batCommand}"
+            batCommand = constructBuildCommand(platform, buildName, outputFolder, platform)
+            echo "${batCommand}"
         }
     }
 }
@@ -37,15 +42,9 @@ def buildOnPlatforms(List platforms, List xrPlugins) {
 def buildOnXrPlugin(String platform, String plugin) {
     stage("Building: ${platform} - ${plugin}") {
         outputFolder = "${env.OUTPUT_FOLDER}\\${platform}\\${plugin}"
-        bat "cd ${outputFolder} || mkdir ${outputFolder}"
-        excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
-
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
-        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin}"
-        if (!params.developmentBuild){
-            batCommand += " -releaseCodeOptimization"
-        }
-        bat "${batCommand}"
+        batCommand = constructBuildCommand(platform, buildName, outputFolder, platform)
+        echo "${batCommand}"
     }
 }
 
@@ -154,8 +153,8 @@ def call(body) {
         post {
             success {
                 echo "Success!"
-                archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
-                bat "@RD /S /Q ${env.OUTPUT_FOLDER}" // remove directory
+                //archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
+                //bat "@RD /S /Q ${env.OUTPUT_FOLDER}" // remove directory
             }
             failure {
                 echo "Failure!"
