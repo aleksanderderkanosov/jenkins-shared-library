@@ -116,7 +116,7 @@ def call(body) {
 
         options {
             timestamps()
-            buildDiscarder(logRotator(numToKeepStr: '10', daysToKeepStr: '7', artifactNumToKeepStr: '1', artifactDaysToKeepStr: '7'))
+            buildDiscarder(logRotator(numToKeepStr: '10', daysToKeepStr: '7', artifactNumToKeepStr: '10', artifactDaysToKeepStr: '7'))
         }
 
         agent {
@@ -149,7 +149,7 @@ def call(body) {
             success {
                 echo "Success!"
                 archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
-                bat "@RD /S /Q ${env.OUTPUT_FOLDER}"
+                bat "@RD /S /Q ${env.OUTPUT_FOLDER}" // remove directory
             }
             failure {
                 echo "Failure!"
