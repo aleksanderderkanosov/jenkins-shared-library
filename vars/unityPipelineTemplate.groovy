@@ -25,7 +25,10 @@ def buildOnPlatforms(List platforms, List xrPlugins) {
             excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
 
             buildName = "${env.BUILD_NAME}_${platform}_${currentBuild.number}"
-            batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\ -executeMethod BuildCommand.PerformBuild"
+            batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget ${platform} -customBuildPath %CD%\\${outputFolder}\\"
+            if (!params.developmentBuild){
+                batCommand += " -releaseCodeOptimization"
+            }
             bat "${batCommand}"
         }
     }
@@ -38,7 +41,10 @@ def buildOnXrPlugin(String platform, String plugin) {
         excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
 
         buildName = "${env.BUILD_NAME}_${plugin}_${currentBuild.number}"
-        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin} -executeMethod BuildCommand.PerformBuild"
+        batCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -buildTarget Android -customBuildPath %CD%\\${outputFolder}\\ -xrPlugin ${plugin}"
+        if (!params.developmentBuild){
+            batCommand += " -releaseCodeOptimization"
+        }
         bat "${batCommand}"
     }
 }
@@ -99,7 +105,7 @@ def call(body) {
     pipeline {
         // Variable inputs that modify the behavior of the job
         parameters {
-            booleanParam(name: 'developmentBuild', defaultValue: true, description: 'Choose the build type:')
+            booleanParam(name: 'developmentBuild', defaultValue: false, description: 'Choose the build type:')
             choice(name: 'scriptingBackend', choices: ['Mono2x', 'IL2CPP'], description: 'Pick scripting backend:')
             choice(name: 'compressionMethod', choices: ['Default', 'Lz4', 'Lz4HC'], description: 'Pick compression method:')
         }
@@ -110,7 +116,7 @@ def call(body) {
             BUILD_NAME = "${pipelineParams.productName}"
             OUTPUT_FOLDER = "Builds\\CurrentBuild-${currentBuild.number}"
             IS_DEVELOPMENT_BUILD = "${params.developmentBuild}"
-            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend} -productName ${pipelineParams.productName} "
+            BAT_COMMAND = "${UNITY_EXECUTABLE} -projectPath %CD% -quit -batchmode -nographics -scriptingBackend ${params.scriptingBackend} -productName ${pipelineParams.productName} -executeMethod BuildCommand.PerformBuild "
             BUILD_OPTIONS_ENV_VAR = "CompressWith${params.compressionMethod}"
         }
 
