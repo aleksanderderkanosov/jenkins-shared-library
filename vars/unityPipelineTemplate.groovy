@@ -149,6 +149,7 @@ def call(body) {
             success {
                 echo "Success!"
                 archiveArtifacts artifacts: "${env.OUTPUT_FOLDER}/**/*", excludes: excludeDirectories, onlyIfSuccessful: true
+                bat "@RD /S /Q ${env.OUTPUT_FOLDER}"
             }
             failure {
                 echo "Failure!"
