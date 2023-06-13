@@ -6,6 +6,7 @@ String listToGroovyScript(List values) {
 String constructBuildCommand(String platform, String buildName, String outputFolder, String buildTarget) {
     bat "cd ${outputFolder} || mkdir ${outputFolder}"
     excludeDirectories += "${outputFolder}/*BackUpThisFolder_ButDontShipItWithYourGame/**/*,"
+    excludeDirectories += "${outputFolder}/*_BurstDebugInformation_DoNotShip/**/*,"
 
     buildCommand = env.BAT_COMMAND + "-customBuildName ${buildName} -customBuildPath %CD%\\${outputFolder}\\ -buildTarget ${buildTarget}"
     if (!params.developmentBuild){
@@ -134,7 +135,9 @@ def call(body) {
             stage('Init build') {
                 steps {
                     script {
-                        if (!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty() || !currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty()) {
+                        if (!currentBuild.getBuildCauses('jenkins.branch.BranchEventCause').isEmpty() || 
+                            !currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty() || 
+                            currentBuild.number == 1) {
                             platforms = pipelineParams.buildPlatforms
                             plugins = pipelineParams.xrPlugins
                         }
