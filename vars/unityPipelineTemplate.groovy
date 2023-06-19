@@ -56,7 +56,9 @@ def call(body) {
     body()
 
     String buildPlatformsString = listToGroovyScript(pipelineParams.buildPlatforms)
-    String xrPluginsString = listToGroovyScript(pipelineParams.xrPlugins)
+    if (buildPlatformsString.contains("XR") && pipelineParams.xrPlugins) {
+        String xrPluginsString = listToGroovyScript(pipelineParams.xrPlugins)
+    }
 
     properties([
         parameters([
@@ -139,7 +141,12 @@ def call(body) {
                             !currentBuild.getBuildCauses('com.cloudbees.jenkins.GitHubPushCause').isEmpty() || 
                             currentBuild.number == 1) {
                             platforms = pipelineParams.buildPlatforms
-                            plugins = pipelineParams.xrPlugins
+                            if (platforms.contains("XR") && pipelineParams.xrPlugins) {
+                                plugins = pipelineParams.xrPlugins
+                            }
+                            else {
+                                plugins = ""
+                            }
                         }
                         else {
                             platforms = params.BuildPlatforms.tokenize(',')
