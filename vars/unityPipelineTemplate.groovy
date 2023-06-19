@@ -129,11 +129,7 @@ def call(body) {
             buildDiscarder(logRotator(numToKeepStr: '10', daysToKeepStr: '7', artifactNumToKeepStr: '10', artifactDaysToKeepStr: '7'))
         }
 
-        agent {
-            node {
-                label "Master-build-agent"
-            }
-        }
+        agent any
 
         stages {
             stage('Init build') {
