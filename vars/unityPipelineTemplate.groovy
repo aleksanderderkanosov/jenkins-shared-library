@@ -56,6 +56,8 @@ def call(body) {
     body()
 
     String buildPlatformsString = listToGroovyScript(pipelineParams.buildPlatforms)
+    println("buildPlatformsString: ${buildPlatformsString}")
+    String xrPluginsString = ""
     if (buildPlatformsString.contains("XR") && pipelineParams.xrPlugins) {
         String xrPluginsString = listToGroovyScript(pipelineParams.xrPlugins)
     }
