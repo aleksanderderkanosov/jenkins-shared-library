@@ -147,7 +147,7 @@ def call(body) {
                                 plugins = pipelineParams.xrPlugins
                             }
                             else {
-                                plugins = ""
+                                plugins = []
                             }
                         }
                         else {
